@@ -5,45 +5,46 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: jledesma <jledesma@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/07/25 18:53:23 by jledesma          #+#    #+#             */
-/*   Updated: 2022/07/30 19:45:00 by jledesma         ###   ########.fr       */
+/*   Created: 2022/08/05 16:35:51 by jledesma          #+#    #+#             */
+/*   Updated: 2022/08/16 18:07:04 by jledesma         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "./minitalk.h"
+#include "minitalk.h"
 
-typedef struct msg_t
+static void	ft_bit_handler(int sig)
 {
-	char	letter;
-	size_t	i;
-}			t_msg;
+	static char		c = 0;
+	static int		pos = 0;
+	int				bit;
 
-void	handler(int bit)
-{
-	size_t	i;
-	t_msg	msg;
-
-	i = 0;
-	msg.letter += ((bit & i) << msg.i);
-	msg.i++;
-	if (msg.i == 7)
+	if (sig == SIGUSR1)
+		bit = 0;
+	else if (sig == SIGUSR2)
+		bit = 1;
+	else
+		exit(EXIT_FAILURE);
+	c += bit << pos++;
+	if (pos == 7)
 	{
-		ft_printf("%c", msg.letter);
-		if (!msg.letter)
+		ft_printf(COLOR_GREEN "%c", c);
+		if (!c)
 			ft_printf("\n");
-		msg.i = 0;
-		msg.letter = 0;
+		pos = 0;
+		c = 0;
 	}
 }
 
-int	main(int argc, char **argv)
+int	main(void)
 {
-	printf("Welcome to UNIX signals, AKA `Minitalk`");
-	printf("This server PID ---> [%d] <---", getpid());
+	struct sigaction	sa;
+
+	sa.sa_handler = ft_bit_handler;
+	sigemptyset(&sa.sa_mask);
+	sa.sa_flags = 0;
+	ft_printf(COLOR_GREEN "\nServer Active\nPID is: %d:\n", getpid());
+	sigaction(SIGUSR1, &sa, NULL);
+	sigaction(SIGUSR2, &sa, NULL);
 	while (1)
-	{
-		signal(SIGUSR2, handler);
-		signal(SIGUSR1, handler);
-	}
-	return (0);
+		pause();
 }
