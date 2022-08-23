@@ -6,7 +6,7 @@
 /*   By: jledesma <jledesma@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 16:35:51 by jledesma          #+#    #+#             */
-/*   Updated: 2022/08/16 18:07:04 by jledesma         ###   ########.fr       */
+/*   Updated: 2022/08/23 16:44:16 by jledesma         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ static void	ft_bit_handler(int sig)
 	{
 		ft_printf(COLOR_GREEN "%c", c);
 		if (!c)
-			ft_printf("\n");
+			ft_printf("\0");
 		pos = 0;
 		c = 0;
 	}
