@@ -6,7 +6,7 @@
 /*   By: jledesma <jledesma@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 16:35:51 by jledesma          #+#    #+#             */
-/*   Updated: 2022/08/23 16:50:50 by jledesma         ###   ########.fr       */
+/*   Updated: 2022/08/23 16:44:16 by jledesma         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,11 +40,11 @@ int	main(void)
 	struct sigaction	sa;
 
 	sa.sa_handler = ft_bit_handler;
+	sigemptyset(&sa.sa_mask);
 	sa.sa_flags = 0;
 	ft_printf(COLOR_GREEN "\nServer Active\nPID is: %d:\n", getpid());
 	sigaction(SIGUSR1, &sa, NULL);
 	sigaction(SIGUSR2, &sa, NULL);
 	while (1)
 		pause();
-	return (0);
 }
