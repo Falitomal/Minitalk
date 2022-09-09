@@ -1,36 +1,44 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   client.c                                           :+:      :+:    :+:   */
+/*   client_bonus.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: jledesma <jledesma@student.42malaga.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 16:35:59 by jledesma          #+#    #+#             */
-/*   Updated: 2022/09/07 12:25:07 by jledesma         ###   ########.fr       */
+/*   Updated: 2022/09/09 12:33:42 by jledesma         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "minitalk.h"
+#include "minitalk_bonus.h"
 
-static void	ft_send_bit(int pid, char *str, int len)
+static void	ft_send_bit(int pid, unsigned char octet)
 {
-	int		i;
-	int		pos;
+	int				i;
+	unsigned char	bit;
 
-	i = 0;
-	while (i <= len)
+	i = 8;
+	while (i--)
 	{
-		pos = 0;
-		while (pos < 7)
-		{
-			if ((str[i] >> pos) & 1)
-				kill(pid, SIGUSR2);
-			else
-				kill(pid, SIGUSR1);
-			pos++;
-			usleep(500);
-		}
-		i++;
+		bit = (octet >> i & 1) + '0';
+		if (bit == '1')
+			kill(pid, SIGUSR2);
+		else
+			kill(pid, SIGUSR1);
+		usleep(350);
+	}
+}
+
+void	sign_recived(int signal)
+{
+	static int	signr = 0;
+
+	if (signal == SIGUSR2)
+		signr++;
+	else
+	{
+		ft_printf(COLOR_BLUE "\n %d bytes recibed \n", signr);
+		exit(0);
 	}
 }
 
@@ -64,17 +72,26 @@ int	ft_strlen(char *str)
 
 int	main(int argc, char **argv)
 {
-	int		pid_server;
-	char	*str;
+	int			i;
+	char		*str;
+	int			pid_server;
 
+	i = 0;
 	str = argv[2];
 	if (argc != 3)
 	{
 		ft_printf(COLOR_RED "Wrong argument \n");
-		return (0);
+		return (1);
 	}
-	pid_server = ft_atoi(argv[1]);
-	ft_printf(COLOR_RED "\nSendind msg with %d bytes \n", ft_strlen(str));
-	ft_send_bit(pid_server, argv[2], ft_strlen(str));
+	signal(SIGUSR1, sign_recived);
+	signal(SIGUSR2, sign_recived);
+	while (i <= ft_strlen(str))
+	{
+		pid_server = ft_atoi(argv[1]);
+		ft_send_bit(pid_server, str[i]);
+		i++;
+	}
+	while (1)
+		pause();
 	return (0);
 }
